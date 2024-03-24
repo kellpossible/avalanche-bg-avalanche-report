@@ -1,0 +1,105 @@
+
+{% from "macros/elements.html" import divider %}
+{% from "macros/language_select.html" import language_select %}
+{% from "macros/forecast_intro.html" import forecast_intro %}
+{% from "macros/weather.html" import weather, weather_wind_unit_select %}
+{% extends "base.html" %}
+{% block head %}
+    <link rel="stylesheet" href="/dist/uPlot.css">
+    <script src="/dist/uPlot.js"></script>
+{% endblock head %}
+{% macro current_forecast_block(current_forecast) %}
+    <div class="py-4">
+        {% if current_forecast %}
+            <a href="/forecasts/{{ current_forecast.file.file.name | urlencode }}">
+                <h2 class="text-4xl font-bold text-blue-600">{{ fl("current-forecast-heading") }}</h2>
+            </a>
+            {% with forecast = current_forecast.forecast %}
+                <div class="text-left">
+                    {{ forecast_intro(
+                    overall_hazard=forecast.hazard_ratings.overall.value,
+                    description=forecast.description,
+                    formatted_time=forecast.formatted_time,
+                    formatted_valid_until=forecast.formatted_valid_until,
+                    forecaster_name=forecast.forecaster.name
+                    ) }}
+                </div>
+            {% endwith %}
+            <div>
+                <a class="text-xl font-bold text-blue-600 hover:text-blue-800"
+                   href="/forecasts/{{ current_forecast.file.file.name | urlencode }}">{{ fl("view-full-forecast-button") }}</a>
+            </div>
+        {% else %}
+            <span class="inline-flex items-baseline">
+                <img src="/static/images/icons/hazard-rating/no-rating.svg"
+                     class="self-center w-12 h-12 mx-1"/>
+                <h2 class="text-4xl font-bold">{{ fl("no-current-forecast-heading") }}</h2>
+            </span>
+            <p>{{ fl("check-forecast-archive-below") }}</p>
+        {% endif %}
+    </div>
+{% endmacro %}
+{% macro forecast_archive_block(forecast, emphasize=false) %}
+    <tr>
+        <td>
+            {% if forecast.forecast %}
+                {% set hazard_rating = forecast.forecast.hazard_ratings.overall.value %}
+                <img src="/static/images/icons/hazard-rating/{{ hazard_rating }}.png"
+                     class="self-center h-8 mx-1"/>
+            {% endif %}
+        </td>
+        <td>
+            <a class="text-xl font-bold text-blue-600 hover:text-blue-800 visited:text-purple-600 {% if emphasize %}text-xl font-bold{% endif %}"
+               href="/forecasts/{{ forecast.file.file.name | urlencode }}">
+                {{ forecast.details.formatted_time }}
+            </a>
+        </td>
+    </tr>
+{% endmacro %}
+{% set page_title = fl("bansko-avalanche-forecast-heading") %}
+{% block title %}
+    {{ page_title }}
+{% endblock title %}
+{% block body %}
+    <h1 class="text-5xl font-bold text-center">{{ page_title }}</h1>
+    <div class="flex items-center justify-center w-screen">
+        <div class="p-2 w-full md:min-w-3xl md:max-w-3xl text-center">
+            <div class="pb-2">{{ language_select() }}</div>
+            {{ divider() }}
+            {% if (forecasts | length) == 0 %}
+                <p class="text-2xl font-bold text-rose-600">{{ fl("no-forecasts-available-message") }}</p>
+            {% else %}
+                <div class="py-5">{{ current_forecast_block(current_forecast=current_forecast) }}</div>
+                {{ divider() }}
+                <div class="py-2">{{ weather(wind_unit, show_wind_unit_select=true) }}</div>
+                {{ divider() }}
+                <div class="py-5">
+                    <h2 class="text-2xl font-bold py-2">{{ fl("about-title") }}</h2>
+                    <div class="prose leading-normal max-w-full text-black md:text-justify text-left">
+                        {{ fl_md("about-description", {}, { "strip_paragraph": false }) }}
+                    </div>
+                    <p class="md:text-justify text-left pt-4">{{ fl("disclaimer-message") }}</p>
+                    <div class="prose leading-normal max-w-full text-black md:text-justify text-left pt-4">
+                        {{ fl_md("see-facebook-page-message", {"url": "https://www.facebook.com/groups/830534093958221"}, { "use_isolating": false} ) }}
+                    </div>
+                </div>
+                {{ divider() }}
+                <div class="py-5 text-slate-500">
+                    <h2 class="text-2xl font-bold py-2">{{ fl("forecast-archive-heading") }}</h2>
+                    <div class="flex justify-center">
+                        <table>
+                            {% for forecast in forecasts %}{{ forecast_archive_block(forecast=forecast) }}{% endfor %}
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+            {% if (errors | length) != 0 %}
+                <h2 class="text-2xl font-bold text-rose-600">Errors Reading Forecast Files</h2>
+                {% for error in errors %}
+                    <h3 class="text-xl font-bold text-rose-600">Error {{ loop.index }}</h3>
+                    <pre>{{ ansi_to_html(error) }}</pre>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock body %}

@@ -1,0 +1,50 @@
+app = "bulgaria-avalanche-report"
+primary_region = "otp"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+
+[env]
+  AVALANCHE_REPORT = """
+    data_dir="/data-volume"
+    listen_address="[::]:8080"
+    base_url="https://bulgaria-avalanche-report.fly.dev/"
+    default_language_order=["en-UK", "ka-GE"]
+
+    [templates]
+    directory="templates"
+
+    [i18n]
+    directory="i18n"
+
+    [map]
+    source="OpenTopoMap"
+  """
+
+[[mounts]]
+  source = "bulgaria_avalanche_report_data"
+  destination = "/data-volume"
+  processes = ["app"]
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+  min_machines_running = 0
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "1s"
+    restart_limit = 0
