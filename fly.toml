@@ -9,6 +9,7 @@ kill_timeout = "5s"
     listen_address="[::]:8080"
     base_url="https://bulgaria-avalanche-report.fly.dev/"
     default_language_order=["bg-BG", "en-UK"]
+    forecast_spreadsheet_schema="forecast_spreadsheet_schema.bansko.0.3.1.json"
 
     [templates]
     directory="templates"
