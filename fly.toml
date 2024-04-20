@@ -19,6 +19,13 @@ kill_timeout = "5s"
 
     [map]
     source="OpenTopoMap"
+
+    [weather_maps.Windy]
+    latitude=41.753
+    longitude=23.432
+
+    [weather_maps.Meteoblue]
+    location_id="todorka-summit_bulgaria_726427"
   """
 
 [[mounts]]
