@@ -1,0 +1,47 @@
+version: "3.9" # optional since v1.27.0
+services:
+  avalanche-report:
+    build: .
+    ports:
+      - "4000:4000"
+    volumes:
+      - type: volume
+        source: data-volume
+        target: /data-volume
+        volume:
+          nocopy: true
+      - "./static:/static"
+      - "./templates:/templates"
+      - "./i18n:/i18n"
+    env_file:
+      - .env
+    environment:
+      RUST_LOG: axum=debug,tower=debug,avalanche_report=debug,migrations=info
+      AVALANCHE_REPORT: |
+        data_dir="/data-volume"
+        listen_address="[::]:4000"
+        base_url="http://localhost:4000"
+        default_language_order=["bg-BG", "en-UK"]
+        forecast_spreadsheet_schema="forecast_spreadsheet_schema.bansko.0.3.1.json"
+
+        [templates]
+        directory="/templates"
+
+        [i18n]
+        directory="/i18n"
+
+        [map]
+        source="OpenTopoMap"
+
+        [weather_maps.Windy]
+        latitude=41.753
+        longitude=23.432
+
+        [weather_maps.Meteoblue]
+        location_id="todorka-summit_bulgaria_726427"
+
+        [static_files]
+        directory="/static"
+
+volumes:
+  data-volume:

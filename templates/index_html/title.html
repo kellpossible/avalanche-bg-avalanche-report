@@ -1,0 +1,25 @@
+<!-- Needed for @media queries! -->
+<style>
+.title-row {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .title-row {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      align-items: center;
+  }
+}
+
+@media (max-width: 767px) {
+    .ab-logo {
+        display: block;
+        margin: 0 auto;
+    }
+}
+</style>
+<div class="grid title-row" style="justify-content: space-between; ">
+    <a href="https://avalanche.bg" class="ab-logo"><img src="/static/ab-logo.png" class="mx-1" style="width: 9rem;"/></a>
+    <h1 class="text-5xl font-bold text-center" style="grid-column: span 3;">{{ page_title }}</h1>
+    <div style="width: 9rem;"></div>
+</div>

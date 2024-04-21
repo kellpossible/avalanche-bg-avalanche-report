@@ -26,6 +26,9 @@ kill_timeout = "5s"
 
     [weather_maps.Meteoblue]
     location_id="todorka-summit_bulgaria_726427"
+
+    [static_files]
+    directory="static"
   """
 
 [[mounts]]
